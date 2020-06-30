@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import jwt from 'jsonwebtoken';
+import http from 'http';
 
 import schema from './schema';
 import resolvers from './resolvers';
@@ -27,21 +28,31 @@ const getMe = async req => {
 const server = new ApolloServer({
   typeDefs: schema,
   resolvers,
-  context: async ({ req }) => {
-    const me = await getMe(req);
-    
-    const token = req.headers['authorization'];
-    return {
-      models,
-      token,
-      me,
-      // secret: process.env.SECRET
+  context: async ({ req, connection }) => {
+    if (connection) {
+      return {
+        models
+      }
+    }
+
+    if (req) {
+      const me = await getMe(req);
+      const token = req.headers['authorization'];
+      return {
+        models,
+        token,
+        me,
+        // secret: process.env.SECRET
+      }
     }
   },
 });
  
 server.applyMiddleware({ app, path: '/graphql' });
+
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
  
-app.listen({ port: 8000 }, () => {
+httpServer.listen({ port: 8000 }, () => {
   console.log('Apollo Server on http://localhost:8000/graphql');
 });

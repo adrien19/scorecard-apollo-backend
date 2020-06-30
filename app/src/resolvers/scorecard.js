@@ -1,5 +1,6 @@
 import { combineResolvers } from 'graphql-resolvers';
 
+import pubsub, { EVENTS } from '../subscriptions';
 import { isAuthenticated, isScorecardOwner } from './authorization';
 
 export default {
@@ -17,8 +18,16 @@ export default {
     Mutation: {
         createScorecard: combineResolvers(
             isAuthenticated,
-            (parent, { scorecardInput }, { me, models }) => {
-                
+            async (parent, { scorecardInput }, { me, models }) => {
+                const scorecard = await models.Scorecard.create({
+                    
+                });
+           
+                pubsub.publish(EVENTS.SCORECARD.CREATED, {
+                scorecardCreated: { scorecard },
+                });
+        
+                return scorecard;
             }
         ),
 
@@ -42,5 +51,11 @@ export default {
         createdBy: (scorecard, args, { models }) => {
 
         },
-    }
+    },
+
+    Subscription: {
+        scorecardCreated: {
+          subscribe: () => pubsub.asyncIterator(EVENTS.SCORECARD.CREATED),
+        },
+    },
 }

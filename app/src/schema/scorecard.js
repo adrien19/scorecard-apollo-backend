@@ -11,6 +11,14 @@ export default gql`
     updateScorecard(text: String!): Scorecard!
     deleteScorecard(id: ID!): Boolean!
   }
+
+  extend type Subscription {
+    scorecardCreated: ScorecardCreated!
+  }
+ 
+  type ScorecardCreated {
+    scorecard: Scorecard!
+  }
  
   type Scorecard {
     id: ID!
