@@ -3,6 +3,7 @@ import express from 'express';
 import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import jwt from 'jsonwebtoken';
 import http from 'http';
+import mongoose from 'mongoose';
 
 import schema from './schema';
 import resolvers from './resolvers';
@@ -53,6 +54,12 @@ server.applyMiddleware({ app, path: '/graphql' });
 const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
  
-httpServer.listen({ port: 8000 }, () => {
-  console.log('Apollo Server on http://localhost:8000/graphql');
+mongoose.connect(process.env.DATABASE_LINK, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true } ).then((result) => {
+
+  httpServer.listen({ port: 8000 }, () => {
+    console.log('Apollo Server on http://localhost:8000/graphql');
+  });
+  
+}).catch(err => {
+  console.log('Unable to connect to database', err);
 });
