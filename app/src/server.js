@@ -21,7 +21,11 @@ const getMe = async req => {
     try {
       return await jwt.verify(token, process.env.SECRET);
     } catch (err) {
-      throw new AuthenticationError('Your session expired. Please Sign in again.');
+      
+      if (!req.headers['refresh']) {
+        throw new AuthenticationError('Your session expired. Please Sign in again.');
+      }
+      return null;
     }
   }
 }

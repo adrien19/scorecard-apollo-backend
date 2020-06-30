@@ -26,6 +26,12 @@ export default gql`
   }
 
   extend type Mutation {
+    refreshToken(
+      refreshToken: String!
+    ): String!
+  }
+
+  extend type Mutation {
     deleteUser(id: Int!): userDataSourceConfirm!
   }
  

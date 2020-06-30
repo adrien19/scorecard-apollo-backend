@@ -66,13 +66,23 @@ export default {
           throw new UserInputError('No user found with this username.');
         }
 
-        console.log(userContent);
-        
-
         return {
           accessToken: userContent.accessToken,
           refreshToken: userContent.refreshToken
         }
+      },
+
+      refreshToken: async (parent, { refreshToken }, { models }) => {
+
+        const newToken = await models.User.getRefreshedToken({
+          token: refreshToken
+        });
+
+        if (!newToken) {
+          throw new UserInputError('Not Authorized.');
+        }
+
+        return newToken.accessToken;
       },
 
       deleteUser: combineResolvers(

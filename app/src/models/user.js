@@ -35,6 +35,20 @@ export async function signIn(userInputs) {
     }
 }
 
+export async function getRefreshedToken(userInputs) {
+
+    const response = await fetch(`${baseUserSourceUrl}/auth/refreshtoken`, {
+        method: 'post',
+        body: JSON.stringify(userInputs),
+        headers: {'Content-Type': 'application/json'}
+    });
+
+    const responseChecked = checkStatus(response);
+    const jsonResponse = await responseChecked.json();
+
+    return jsonResponse
+}
+
 export async function getUserById(authorization) {
 
     const response = await fetch(`${baseUserSourceUrl}/content/user`, {
