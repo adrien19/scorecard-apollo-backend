@@ -1,4 +1,7 @@
 import { AuthenticationError, UserInputError } from 'apollo-server';
+import { combineResolvers } from 'graphql-resolvers';
+
+import { isAdmin } from './authorization';
 
 export default {
     Query: {
@@ -74,6 +77,23 @@ export default {
           refreshToken: userContent.refreshToken
         }
       },
+
+      deleteUser: combineResolvers(
+          isAdmin,
+          async (parent, { id }, { models }) => {
+          const confirmation = await models.User.deleteUser({
+            id
+          });
+
+          console.table(confirmation); // check returned value!
+          const userDeletedMessage = confirmation.userDeleted? "User successfully deleted" : " Failed to delete user";
+          
+
+          return {
+            confirmMessage: userDeletedMessage
+          }
+        }
+      ),
 
     },
    

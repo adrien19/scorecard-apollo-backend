@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const baseUserSourceUrl = `http://localhost:500/api`;
+const baseUserSourceUrl = process.env.BASE_USER_SOURCE_URL; //`http://localhost:500/api`;
 
 
 export async function createUser(username, email, firstname, lastname, password, roles) {
@@ -86,6 +86,24 @@ export async function getCurrentUser(authorization) {
     const jsonResponse = await responseChecked.json();
     
     return {...jsonResponse}
+}
+
+
+export async function deleteUser(authorization) {
+
+    const response = await fetch(`${baseUserSourceUrl}/delete/user`, {
+        method: 'post',
+        body: JSON.stringify({id: authorization.id}),
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${authorization.token}`,
+        }
+    });
+
+    const responseChecked = checkStatus(response);
+    const confirmationStatus = responseChecked? { userDeleted: true } : { userDeleted: false };
+
+    return confirmationStatus;
 }
 
 

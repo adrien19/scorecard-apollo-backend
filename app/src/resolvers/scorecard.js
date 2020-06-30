@@ -1,3 +1,6 @@
+import { combineResolvers } from 'graphql-resolvers';
+
+import { isAuthenticated, isScorecardOwner } from './authorization';
 
 export default {
     Query: {
@@ -12,17 +15,27 @@ export default {
     },
 
     Mutation: {
-        createScorecard: (parent, { scorecardInput }, { me, models }) => {
+        createScorecard: combineResolvers(
+            isAuthenticated,
+            (parent, { scorecardInput }, { me, models }) => {
+                
+            }
+        ),
 
-        },
+        updateScorecard: combineResolvers(
+            isAuthenticated,
+            (parent, { scorecardInput, id }, { me, models }) => {
 
-        updateScorecard: (parent, { scorecardInput, id }, { me, models }) => {
+            }
+        ), 
 
-        }, 
+        deleteScorecard: combineResolvers(
+            isAuthenticated,
+            isScorecardOwner,
+            (parent, { scorecardInput, id }, { me, models }) => {
 
-        deleteScorecard: (parent, { scorecardInput, id }, { me, models }) => {
-
-        }
+            }
+        )
     }, 
 
     Scorecard: {

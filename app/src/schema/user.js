@@ -15,7 +15,7 @@ export default gql`
       lastname: String!
       password: String!
       roles:[String]!
-    ): userCreatedConfirm!
+    ): userDataSourceConfirm!
   }
 
   extend type Mutation {
@@ -24,13 +24,17 @@ export default gql`
       password: String!
     ): TokenInfo!
   }
+
+  extend type Mutation {
+    deleteUser(id: Int!): userDataSourceConfirm!
+  }
  
   type TokenInfo {
     accessToken: String!
     refreshToken: String!
   }
 
-  type userCreatedConfirm {
+  type userDataSourceConfirm {
     confirmMessage: String!
   }
  
