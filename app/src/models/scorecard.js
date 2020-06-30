@@ -17,7 +17,7 @@ const scorecardSchema = new Schema ({
         uppercase: true,
     },
     createdBy: {
-        type: SchemaTypes.ObjectId,
+        type: Number,
         required: true
     },
     team: { roles: [

@@ -14,7 +14,7 @@ export default {
           id,
           token
         });
-        console.log("THIS IS THE USER RETURNED:", userContent);
+
         if (!userContent.user) {
           throw new UserInputError('No user found with this id.'); 
         }
@@ -29,8 +29,7 @@ export default {
         const userContent = await models.User.getCurrentUser({
           token
         });
-        console.log("THIS IS THE CURRENT RETURNED:", userContent);
-        
+
         return {
           ...userContent.user,
           scorecards: []
@@ -49,10 +48,8 @@ export default {
           roles
         });
 
-        console.table(confirmation); // check returned value!
         const userCreatedMessage = confirmation.userCreated? "User successfully created" : " Failed to create user";
         
-
         return {
           confirmMessage: userCreatedMessage
         }

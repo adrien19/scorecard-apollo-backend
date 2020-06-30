@@ -7,9 +7,23 @@ import { isAuthenticated, isScorecardOwner } from './authorization';
 
 export default {
     Query: {
-        scorecards: (parent, args, { models }) => {
+        scorecards: combineResolvers(
+            isAuthenticated,
+            async (parent, args, { models }) => {
+                
+                const scorecards = await models.Scorecard.find().sort({ createdAt: -1 })
 
-        },
+                return scorecards.map(card => {
+                        return {
+                            ...card._doc,
+                            _id: card._id.toString(),
+                            createdAt: card.createdAt.toISOString(),
+                            updatedAt: card.updatedAt.toISOString(),
+                        };
+                    });
+                // }
+            }
+        ),
 
         scorecard: (parent, { id }, { models }) => {
 
@@ -79,10 +93,42 @@ export default {
     }, 
 
     Scorecard: {
-        createdBy: (scorecard, args, { models }) => {
+        createdBy: async (scorecard, args, { models, token }) => {
+            const userContent = await models.User.getUserById({
+                id: scorecard.createdBy,
+                token: token
+            });
 
+            if (!userContent.user) {
+            throw new UserInputError('No user found with this id.'); 
+            }
+            
+            return {
+            ...userContent.user,
+            scorecards: []
+            }
         },
     },
+
+    // Scorecard: {
+    //     createdBy: async (scorecard, args, { models, token }) => {
+    //         const userContent = await models.User.getUserById({
+    //             id: scorecard.createdBy,
+    //             token: token
+    //         });
+
+    //         if (!userContent.user) {
+    //         throw new UserInputError('No user found with this id.'); 
+    //         }
+            
+    //         return {
+    //         ...userContent.user,
+    //         scorecards: []
+    //         }
+    //     },
+    // },
+
+
 
     Subscription: {
         scorecardCreated: {

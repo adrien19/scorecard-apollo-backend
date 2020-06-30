@@ -3,20 +3,11 @@ import fetch from 'node-fetch';
 const baseUserSourceUrl = process.env.BASE_USER_SOURCE_URL; //`http://localhost:500/api`;
 
 
-export async function createUser(username, email, firstname, lastname, password, roles) {
-
-    const userInputs = {
-        "username": username,
-        "email": email,
-        "firstname": firstname,
-        "lastname": lastname,
-        "roles": roles,
-        "password": password
-    }
-    
+export async function createUser(userInputs) {
+   
     const response = await fetch(`${baseUserSourceUrl}/auth/signup`, {
         method: 'post',
-        body: JSON.stringify(userInputs.username),
+        body: JSON.stringify(userInputs),
         headers: {'Content-Type': 'application/json'}
     });
 
@@ -26,16 +17,11 @@ export async function createUser(username, email, firstname, lastname, password,
     return confirmationStatus;
 }
 
-export async function signIn(username, password) {
-
-    const userInputs = {
-        "username": username,
-        "password": password
-    }
+export async function signIn(userInputs) {
 
     const response = await fetch(`${baseUserSourceUrl}/auth/signin`, {
         method: 'post',
-        body: JSON.stringify(userInputs.username),
+        body: JSON.stringify(userInputs),
         headers: {'Content-Type': 'application/json'}
     });
 
@@ -50,9 +36,6 @@ export async function signIn(username, password) {
 }
 
 export async function getUserById(authorization) {
-
-    console.log("this is the id: ", authorization.id);
-    console.log("this is the token: ", authorization.token);
 
     const response = await fetch(`${baseUserSourceUrl}/content/user`, {
         method: 'post',
@@ -70,8 +53,6 @@ export async function getUserById(authorization) {
 }
 
 export async function getCurrentUser(authorization) {
-
-    console.log("this is the token: ", authorization.token);
 
     const response = await fetch(`${baseUserSourceUrl}/content/user`, {
         method: 'post',

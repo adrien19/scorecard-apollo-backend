@@ -24,7 +24,7 @@ export default gql`
     title: String! 
     status: [EnteredStatus]!
     projectStatus: String!
-    createdBy: String!
+    createdBy: Int!
     team: EnteredTeam
   }
 
