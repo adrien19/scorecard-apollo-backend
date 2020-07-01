@@ -83,6 +83,23 @@ export async function getCurrentUser(authorization) {
     return {...jsonResponse}
 }
 
+export async function getUsersWithIDs(authorization) {
+    
+    const response = await fetch(`${baseUserSourceUrl}/content/users`, {
+        method: 'post',
+        body: JSON.stringify({userIds: authorization.userIds}),
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${authorization.token}`,
+        }
+    });
+
+    const responseChecked = checkStatus(response);
+
+    const jsonResponse = await responseChecked.json();
+    
+    return jsonResponse.users;
+}
 
 export async function deleteUser(authorization) {
 

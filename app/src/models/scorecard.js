@@ -20,12 +20,12 @@ const scorecardSchema = new Schema ({
         type: Number,
         required: true
     },
-    team: { roles: [
+    team: [
         {
             title: { type: String, required: true },
-            users: [ {type: SchemaTypes.ObjectId, required: true }]
+            users: [ {type: Number, required: true }]
         }
-    ]},
+    ],
     publication: {
         status: {
             type: Boolean,

@@ -25,7 +25,7 @@ export default gql`
     status: [EnteredStatus]!
     projectStatus: String!
     createdBy: Int!
-    team: EnteredTeam
+    team: [EnterdRole]
   }
 
   input EnteredStatus {
@@ -37,13 +37,7 @@ export default gql`
 
   input EnterdRole {
       title: String!
-      users: [String]!
-  }
-
-  input EnteredTeam {
-      roles: [ 
-          EnterdRole
-      ]
+      users: [ID]!
   }
  
   type Scorecard {
@@ -52,7 +46,7 @@ export default gql`
     status: [Status]!
     projectStatus: String!
     createdBy: User!
-    team: Team
+    team: [Role!]!
     publication: Publication!
     createdAt: String!
     updatedAt: String!
@@ -68,12 +62,6 @@ export default gql`
   type Role {
       title: String!
       users: [User]!
-  }
-
-  type Team {
-      roles: [ 
-          Role
-      ]
   }
 
   type Publication {

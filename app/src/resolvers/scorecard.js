@@ -104,31 +104,42 @@ export default {
             }
             
             return {
-            ...userContent.user,
-            scorecards: []
+                ...userContent.user,
+                scorecards: []
             }
         },
-    },
 
-    // Scorecard: {
-    //     createdBy: async (scorecard, args, { models, token }) => {
-    //         const userContent = await models.User.getUserById({
-    //             id: scorecard.createdBy,
-    //             token: token
-    //         });
-
-    //         if (!userContent.user) {
-    //         throw new UserInputError('No user found with this id.'); 
-    //         }
+        team: async (scorecard, args, { models, token }) => {
             
-    //         return {
-    //         ...userContent.user,
-    //         scorecards: []
-    //         }
-    //     },
-    // },
+            const userIds = scorecard.team.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
+                acc.push(...curr.users);
+                return [...new Set(acc)];
+            }, []);
 
-
+            const usersData = await models.User.getUsersWithIDs({
+                userIds: userIds,
+                token: token
+            });
+            
+            if (!usersData.length === 0) {
+                throw new UserInputError('No users were found with this id.'); 
+            }
+            
+            return scorecard.team.map(role => {
+                return {
+                    title: role.title,
+                    users: usersData.filter(user => {
+                        return role.users.includes(user.id);
+                    }).map(user => {
+                        return {
+                            ...user,
+                            scorecards: []
+                        }
+                    })
+                }
+            });
+        },
+    },
 
     Subscription: {
         scorecardCreated: {
