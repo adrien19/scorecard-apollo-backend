@@ -14,20 +14,35 @@ export default {
                 const scorecards = await models.Scorecard.find().sort({ createdAt: -1 })
 
                 return scorecards.map(card => {
-                        return {
-                            ...card._doc,
-                            _id: card._id.toString(),
-                            createdAt: card.createdAt.toISOString(),
-                            updatedAt: card.updatedAt.toISOString(),
-                        };
-                    });
-                // }
+                    return {
+                        ...card._doc,
+                        _id: card._id.toString(),
+                        createdAt: card.createdAt.toISOString(),
+                        updatedAt: card.updatedAt.toISOString(),
+                    };
+                });
             }
         ),
 
-        scorecard: (parent, { id }, { models }) => {
+        scorecard: combineResolvers(
+            isAuthenticated,
+            async (parent, { id }, { models }) => {
+                const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)});
 
-        },
+                if (!scorecard) {
+                    const error = new Error('Scorecard not found!');
+                    error.code = 401;
+                    throw error;
+                }
+
+                return {
+                    ...scorecard._doc, 
+                    _id: scorecard._id.toString(),
+                    createdAt: scorecard.createdAt.toISOString(),
+                    updatedAt: scorecard.updatedAt.toISOString(),
+                }
+            }
+        ),
 
     },
 
@@ -35,9 +50,6 @@ export default {
         createScorecard: combineResolvers(
             isAuthenticated,
             async (parent, { scorecardInput }, { me, models }) => {
-                // const scorecard = await models.Scorecard.create({
-                    
-                // });
 
                 const errors = [];
                 if (validator.isEmpty(scorecardInput.title)) {
@@ -50,8 +62,6 @@ export default {
                     error.code = 422;
                     throw error;
                 }
-
-                // const creator = User.findById(req.id);
 
                 const createdScorecard = new models.Scorecard({
                     title: scorecardInput.title,
@@ -78,7 +88,44 @@ export default {
 
         updateScorecard: combineResolvers(
             isAuthenticated,
-            (parent, { scorecardInput, id }, { me, models }) => {
+            async (parent, { scorecardInput, id }, { me, models }) => {
+                const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)});
+
+                if (!scorecard) {
+                    const error = new Error('Scorecard not found!');
+                    error.code = 401;
+                    throw error;
+                }
+
+                const errors = [];
+                if (validator.isEmpty(scorecardInput.title)) {
+                    errors.push({ message: "Scorecard title can't be empty!" });
+                }
+
+                if (errors.length !== 0) {
+                    const error = new Error('Invalid Scorecard inputs');
+                    error.data = errors;
+                    error.code = 422;
+                    throw error;
+                }
+
+                scorecard.title = scorecardInput.title;
+                scorecard.status = scorecardInput.status,
+                scorecard.projectStatus = scorecardInput.projectStatus,
+                scorecard.team = scorecardInput.team
+
+                const updatedScorecard = await scorecard.save();
+
+                pubsub.publish(EVENTS.SCORECARD.UPDATED, { // PUSH EVENT TO SUBSCRIBED
+                    scorecardUpdated: { updatedScorecard },
+                });
+
+                return { 
+                    ...updatedScorecard._doc, 
+                    _id: updatedScorecard._id.toString(),
+                    createdAt: updatedScorecard.createdAt.toISOString(),
+                    updatedAt: updatedScorecard.updatedAt.toISOString() 
+                };
 
             }
         ), 
@@ -86,8 +133,28 @@ export default {
         deleteScorecard: combineResolvers(
             isAuthenticated,
             isScorecardOwner,
-            (parent, { scorecardInput, id }, { me, models }) => {
+            async (parent, { id }, { me, models }) => {
+                const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)});
 
+                if (!scorecard) {
+                    const error = new Error('Scorecard not found!');
+                    error.code = 401;
+                    throw error;
+                }
+
+                const deletedScorecard = await models.Scorecard.deleteOne({ _id: new ObjectId(id)});
+
+                console.log(deletedScorecard); // SHOW THE RESULT FOR TESTING
+                
+                const cardDeleted = deletedScorecard.error? false : true;
+
+                if (cardDeleted) {
+                    pubsub.publish(EVENTS.SCORECARD.DELETED, { // PUSH EVENT TO SUBSCRIBED
+                        scorecardDeleted: { scorecard },
+                    });
+                }
+
+                return cardDeleted;
             }
         )
     }, 
@@ -143,7 +210,13 @@ export default {
 
     Subscription: {
         scorecardCreated: {
-          subscribe: () => pubsub.asyncIterator(EVENTS.SCORECARD.CREATED),
+            subscribe: () => pubsub.asyncIterator(EVENTS.SCORECARD.CREATED),
         },
+        scorecardUpdated: {
+            subscribe: () => pubsub.asyncIterator(EVENTS.SCORECARD.UPDATED),
+        },
+        scorecardDeleted: {
+            subscribe: () => pubsub.asyncIterator(EVENTS.SCORECARD.DELETED),
+        }
     },
 }

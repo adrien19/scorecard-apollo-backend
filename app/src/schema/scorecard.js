@@ -8,15 +8,23 @@ export default gql`
  
   extend type Mutation {
     createScorecard(scorecardInput: ScorecardInputData): Scorecard!
-    updateScorecard(text: String!): Scorecard!
+    updateScorecard(scorecardInput: ScorecardInputData, id: ID!): Scorecard!
     deleteScorecard(id: ID!): Boolean!
   }
 
   extend type Subscription {
     scorecardCreated: ScorecardCreated!
+    scorecardUpdated: ScorecardUpdated!
+    scorecardDeleted: ScorecardDeleted!
   }
  
   type ScorecardCreated {
+    scorecard: Scorecard!
+  }
+  type ScorecardUpdated {
+    scorecard: Scorecard!
+  }
+  type ScorecardDeleted {
     scorecard: Scorecard!
   }
 
@@ -24,7 +32,7 @@ export default gql`
     title: String! 
     status: [EnteredStatus]!
     projectStatus: String!
-    createdBy: Int!
+    createdBy: ID!
     team: [EnterdRole]
   }
 

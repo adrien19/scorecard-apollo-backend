@@ -1,14 +1,21 @@
 import { ForbiddenError } from 'apollo-server';
 import { combineResolvers, skip } from 'graphql-resolvers';
+import { ObjectId } from 'mongodb';
  
 export const isAuthenticated = (parent, args, { me }) =>
   me ? skip : new ForbiddenError('Not authenticated as user.');
 
 
 export const isScorecardOwner = async (parent, { id }, { models, me }) => {
-        const scorecard = await models.Scorecard.findByPk(id, { raw: true });
+        const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)});
 
-        if (scorecard.userId !== me.id) {
+        if (!scorecard) {
+          const error = new Error('Scorecard not found!');
+          error.code = 401;
+          throw error;
+        }
+
+        if (scorecard.createdBy !== me.id) {
             throw new ForbiddenError('Not authenticated as owner.');
         }
 
