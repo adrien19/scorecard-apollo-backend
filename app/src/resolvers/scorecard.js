@@ -11,7 +11,9 @@ export default {
             isAuthenticated,
             async (parent, args, { models }) => {
                 
-                const scorecards = await models.Scorecard.find().sort({ createdAt: -1 })
+                const scorecards = await models.Scorecard.find()
+                    .populate('kanbanBoard')
+                    .sort({ createdAt: -1 });
 
                 return scorecards.map(card => {
                     return {
@@ -27,7 +29,8 @@ export default {
         scorecard: combineResolvers(
             isAuthenticated,
             async (parent, { id }, { models }) => {
-                const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)});
+                const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)})
+                    .populate('kanbanBoard');
 
                 if (!scorecard) {
                     const error = new Error('Scorecard not found!');
@@ -63,15 +66,36 @@ export default {
                     throw error;
                 }
 
+                const newKanbanBoard = new models.KanbanBoard({
+                    name: scorecardInput.title,
+                    columns: [],
+                    team: scorecardInput.team,
+                });
+                
+                const savedKanbanBoard = await newKanbanBoard.save();
+
+                if (!savedKanbanBoard) {
+                    const error = new Error('Failed to save scorecard');
+                    error.code = 500;
+                    throw error;
+                }
+
                 const createdScorecard = new models.Scorecard({
                     title: scorecardInput.title,
                     status: scorecardInput.status,
                     projectStatus: scorecardInput.projectStatus,
                     createdBy: me.id, // creator, 
-                    team: scorecardInput.team
+                    kanbanBoard: savedKanbanBoard._id,
                 });
 
                 const scorecard = await createdScorecard.save();
+
+                if (!scorecard) {
+                    const deletedSavedBoard = await models.KanbanBoard.deleteOne({ _id: savedKanbanBoard._id });
+                    const error = new Error('Failed to save scorecard');
+                    error.code = 500;
+                    throw error;
+                }
            
                 pubsub.publish(EVENTS.SCORECARD.CREATED, {
                 scorecardCreated: { scorecard },
@@ -80,6 +104,7 @@ export default {
                 return { 
                     ...scorecard._doc, 
                     _id: scorecard._id.toString(),
+                    kanbanBoard: savedKanbanBoard._doc,
                     createdAt: scorecard.createdAt.toISOString(),
                     updatedAt: scorecard.updatedAt.toISOString() 
                 };
@@ -110,9 +135,13 @@ export default {
                 }
 
                 scorecard.title = scorecardInput.title;
-                scorecard.status = scorecardInput.status,
-                scorecard.projectStatus = scorecardInput.projectStatus,
-                scorecard.team = scorecardInput.team
+                scorecard.status = scorecardInput.status;
+                scorecard.projectStatus = scorecardInput.projectStatus;
+                if (scorecard.publication.status !== scorecardInput.publication.status) {
+                    scorecard.publication.statusChangedAt = new Date().toISOString();
+                }else{
+                    scorecard.publication = scorecardInput.publication;
+                }
 
                 const updatedScorecard = await scorecard.save();
 
@@ -167,44 +196,13 @@ export default {
             });
 
             if (!userContent.user) {
-            throw new UserInputError('No user found with this id.'); 
+                throw new UserInputError('No user found with this id.'); 
             }
             
             return {
                 ...userContent.user,
                 scorecards: []
             }
-        },
-
-        team: async (scorecard, args, { models, token }) => {
-            
-            const userIds = scorecard.team.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
-                acc.push(...curr.users);
-                return [...new Set(acc)];
-            }, []);
-
-            const usersData = await models.User.getUsersWithIDs({
-                userIds: userIds,
-                token: token
-            });
-            
-            if (!usersData.length === 0) {
-                throw new UserInputError('No users were found with this id.'); 
-            }
-            
-            return scorecard.team.map(role => {
-                return {
-                    title: role.title,
-                    users: usersData.filter(user => {
-                        return role.users.includes(user.id);
-                    }).map(user => {
-                        return {
-                            ...user,
-                            scorecards: []
-                        }
-                    })
-                }
-            });
         },
     },
 

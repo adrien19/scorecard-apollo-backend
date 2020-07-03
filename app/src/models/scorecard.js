@@ -16,16 +16,13 @@ const scorecardSchema = new Schema ({
         required: true,
         uppercase: true,
     },
+    kanbanBoard: { 
+        type: SchemaTypes.ObjectId, ref: 'KanbanBoard', required: true 
+    },
     createdBy: {
         type: Number,
         required: true
     },
-    team: [
-        {
-            title: { type: String, required: true },
-            users: [ {type: Number, required: true }]
-        }
-    ],
     publication: {
         status: {
             type: Boolean,

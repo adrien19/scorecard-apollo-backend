@@ -10,48 +10,24 @@ export default {
             isAuthenticated,
             async (parent, { id }, { models, token }) => {
                 const kanbanBoard = await models.KanbanBoard.findById({_id: new ObjectId(id)})
-                    .populate( {path: 'columns.tasks', populate: [
-                        { path: 'comments' },
-                     ]} )
-                    .populate( 'scorecard');
-
+                    .populate( 
+                        {
+                            path: 'columns.tasks', 
+                            populate: [
+                                { path: 'comments' },
+                        ]
+                    } 
+                );
+                     
                 if (!kanbanBoard) {
                     const error = new Error('Kanboard not found!');
                     error.code = 401;
                     throw error;
                 }
-
-                const userIds = kanbanBoard.scorecard.team.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
-                    acc.push(...curr.users);
-                    return [...new Set(acc)];
-                }, []);
-
-                const usersData = await models.User.getUsersWithIDs({
-                    userIds: userIds,
-                    token: token
-                });
-            
-                if (!usersData.length === 0) {
-                    throw new UserInputError('No users were found with this id.'); 
-                }
-                
-                const membersInfo = kanbanBoard.scorecard.team.reduce((acc, role) => {
-                    usersData.filter(user => {
-                            return role.users.includes(user.id);
-                        }).map(user => {
-                            acc.push({
-                                ...user,
-                                role: role.title
-                            });
-                        });
-
-                    return acc; 
-                }, []);
                 
                 return {
                     ...kanbanBoard._doc, 
                     _id: kanbanBoard._id.toString(),
-                    boardMembers: membersInfo,
                     createdAt: kanbanBoard.createdAt.toISOString(),
                     updatedAt: kanbanBoard.updatedAt.toISOString(),
                 }
@@ -76,8 +52,6 @@ export default {
                     throw error;
                 }
 
-                // const parentScorecard = await models.Scorecard.findById({_id: new ObjectId(boardInputs.scorecardID)});
-
                 const createdKanBanBoard = new models.KanbanBoard({
                     name: boardInputs.name,
                     columns: [],
@@ -95,52 +69,40 @@ export default {
                 };
             }
         ),
-    }
+    },
 
-    // KanbanBoard: {
-    //     columns: async (kanbanBoard, args, { models, token }) => {
-            
-    //         const taskIds = kanbanBoard.columns.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
-    //             acc.push(...curr.tasks);
-    //             return [...new Set(acc)];
-    //         }, []);
+    KanbanBoard: {
 
-    //         const taskIdsObjs = taskIds.map(id => new ObjectId(id));
+        boardMembers: async (kanbanBoard, args, { models, token }) => {
+            
+            const userIds = kanbanBoard.team.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
+                acc.push(...curr.users);
+                return [...new Set(acc)];
+            }, []);
 
-    //         const columnTasksData = await models.BoardTask.find({_id: {$in: taskIdsObjs} }).toArray();
+            const usersData = await models.User.getUsersWithIDs({
+                userIds: userIds,
+                token: token
+            });
             
-    //         if (!columnTasksData.length === 0) {
-    //             throw new UserInputError('No users were found with this id.'); 
-    //         }
-            
-    //         return scorecard.columns.map(col => {
-    //             return {
-    //                 name: col.name,
-    //                 tasks: columnTasksData.filter(task => {
-    //                     return col.tasks.includes(task._id);
-    //                 }).map(task => {
-    //                     return {
-    //                         ...task,
-    //                         _id: task._id.toString(),
-    //                         createdAt: task.createdAt.toISOString(),
-    //                         updatedAt: task.updatedAt.toISOString(),
-    //                     }
-    //                 })
-    //             }
-    //         });
-    //     },
+            if (!usersData.length === 0) {
+                throw new UserInputError('No users were found with this id.'); 
+            }
 
-    //     boardMembers: async (kanbanBoard, args, { models, token }) => {
-    //         const kanbanBoard = await models.KanbanBoard.findById({_id: new ObjectId(id)});
-    
-    //         if (!userContent.user) {
-    //         throw new UserInputError('No user found with this id.'); 
-    //         }
-            
-    //         return {
-    //             ...userContent.user,
-    //             scorecards: []
-    //         }
-    //     },
-    // },
+            const membersInfo = kanbanBoard.team.reduce((acc, role) => {
+                usersData.filter(user => {
+                        return role.users.includes(user.id);
+                    }).map(user => {
+                        acc.push({
+                            ...user,
+                            role: role.title
+                        });
+                    });
+
+                return acc; 
+            }, []);
+
+            return membersInfo;
+        },
+    },
 }

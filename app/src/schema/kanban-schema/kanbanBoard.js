@@ -20,8 +20,14 @@ export default gql`
         name: String!
         columns: [BoardColumns]!
         boardMembers: [MemberInfo]!
+        team: [Role!]!
         createdAt: String!
         updatedAt: String!
+    }
+
+    type Role {
+        title: String!
+        users: [User]!
     }
 
     type MemberInfo {

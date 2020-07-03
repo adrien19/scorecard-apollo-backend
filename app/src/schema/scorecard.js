@@ -54,7 +54,7 @@ export default gql`
     status: [Status]!
     projectStatus: String!
     createdBy: User!
-    team: [Role!]!
+    kanbanBoard: KanbanBoard!
     publication: Publication!
     createdAt: String!
     updatedAt: String!
@@ -65,11 +65,6 @@ export default gql`
     net: String!
     cost: String!
     time: String!
-  }
-
-  type Role {
-      title: String!
-      users: [User]!
   }
 
   type Publication {
