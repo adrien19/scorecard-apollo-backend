@@ -10,10 +10,6 @@ const BoardTaskSchema = new Schema ({
         type: String,
         required: true,
     },
-    createdTime: {
-        type: String,
-        required: true,
-    },
     assigned: {
         type: Boolean,
         default: false

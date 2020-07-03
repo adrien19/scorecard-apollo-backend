@@ -2,6 +2,7 @@ import { gql } from 'apollo-server-express';
  
 import userSchema from './user';
 import scorecardSchema from './scorecard';
+import kanbanBoardSchema from './kanban-schema/kanbanBoard';
  
 const linkSchema = gql`
   type Query {
@@ -17,4 +18,4 @@ const linkSchema = gql`
   }
 `;
  
-export default [linkSchema, userSchema, scorecardSchema];
+export default [linkSchema, userSchema, scorecardSchema, kanbanBoardSchema];

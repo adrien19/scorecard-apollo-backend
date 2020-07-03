@@ -14,9 +14,9 @@ const KanbanBoardSchema = new Schema ({
             }]
         }
     ],
-    boardMembers: [{ 
-        type: SchemaTypes.ObjectId, ref: 'Scorecard.team', required: true 
-    }],
+    scorecard: { 
+        type: SchemaTypes.ObjectId, ref: 'Scorecard', required: true 
+    },
 
 }, { timestamps: true })
 
