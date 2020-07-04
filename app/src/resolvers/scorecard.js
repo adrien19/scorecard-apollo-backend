@@ -75,7 +75,7 @@ export default {
                 const savedKanbanBoard = await newKanbanBoard.save();
 
                 if (!savedKanbanBoard) {
-                    const error = new Error('Failed to save scorecard');
+                    const error = new Error('createScorecard -> Failed to create board for this scorecard');
                     error.code = 500;
                     throw error;
                 }

@@ -7,18 +7,48 @@ export default gql`
     }
 
     extend type Mutation {
-        addKanbanBoard(boardInputs: BoardInputs): KanbanBoard!
+        updateKanbanBoard(id: ID!, boardInputs: BoardInputs): KanbanBoard!
+        addBoardTask(columnId: ID!, taskInputs: TaskInputs): BoardTaskColumn!
+        addBoardColumn(boardId: ID!, columnInputs: ColumnInputs): BoardColumn!
     }
 
     input BoardInputs {
-        name: String!
-        scorecardID: ID!
+        name: String
+        columns: [ColumnInputs]
     }
+
+    input ColumnInputs {
+        name: String!
+        tasks: [TaskInputs]!
+    }
+
+    input TaskInputs {
+        description: String!
+        taskStatus: String!
+        assigned: Boolean
+        assignedTo: [ID]
+        assignBy: ID
+        statusChangedTime: String
+        comments: [TaskComment]
+        detailedDesription: String
+    }
+
+    input TaskComment {
+        createdBy: String!
+        commentLikedBy:[ID]
+        messageWord: MessageText
+    }
+
+    input MessageText {
+        message: String!
+        usersMentioned: [ID]
+    }
+
 
     type KanbanBoard {
         _id: ID!
         name: String!
-        columns: [BoardColumns]!
+        columns: [BoardColumn]!
         boardMembers: [MemberInfo]!
         team: [Role!]!
         createdAt: String!
@@ -39,7 +69,7 @@ export default gql`
         role: String!
     }
 
-    type BoardColumns {
+    type BoardColumn {
         _id: ID!
         name: String!
         tasks: [BoardTaskColumn]!
@@ -54,7 +84,7 @@ export default gql`
         assignBy: User
         statusChangedTime: String
         comments: [BoardTaskComment]
-        detailedDesription: String!
+        detailedDesription: String
         createdAt: String!
         updatedAt: String!
     }

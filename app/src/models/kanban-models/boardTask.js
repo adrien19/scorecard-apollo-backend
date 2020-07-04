@@ -22,8 +22,11 @@ const BoardTaskSchema = new Schema ({
         type: Number,
         required: true
     },
-    statusChangedTime:{
+    statusChangedTime: {
         type: String,
+    },
+    boardColumn: {
+        type: SchemaTypes.ObjectId, ref: 'BoardColumn', required: true
     },
     comments: [
         { 

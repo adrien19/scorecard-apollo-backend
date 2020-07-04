@@ -6,14 +6,9 @@ const KanbanBoardSchema = new Schema ({
         type: String,
         require: true
     },
-    columns: [
-        {
-            name: { type: String, required: true },
-            tasks: [{ 
-                type: SchemaTypes.ObjectId, ref: 'BoardTask', required: true 
-            }]
-        }
-    ],
+    columns: [{ 
+                type: SchemaTypes.ObjectId, ref: 'BoardColumn', required: true 
+            }],
     team: [
         {
             title: { type: String, required: true },
