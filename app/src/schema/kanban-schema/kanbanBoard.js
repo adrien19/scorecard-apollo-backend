@@ -10,6 +10,8 @@ export default gql`
         updateKanbanBoard(id: ID!, boardInputs: BoardInputs): KanbanBoard!
         addBoardTask(columnId: ID!, taskInputs: TaskInputs): BoardTaskColumn!
         addBoardColumn(boardId: ID!, columnInputs: ColumnInputs): BoardColumn!
+        addTaskComment(taskId: ID!, commentInputs: CommentInputs): TaskComment!
+
     }
 
     input BoardInputs {
@@ -29,17 +31,11 @@ export default gql`
         assignedTo: [ID]
         assignBy: ID
         statusChangedTime: String
-        comments: [TaskComment]
+        comments: [CommentInputs]
         detailedDesription: String
     }
 
-    input TaskComment {
-        createdBy: String!
-        commentLikedBy:[ID]
-        messageWord: MessageText
-    }
-
-    input MessageText {
+    input CommentInputs {
         message: String!
         usersMentioned: [ID]
     }
@@ -83,21 +79,21 @@ export default gql`
         assignedTo: [User]
         assignBy: User
         statusChangedTime: String
-        comments: [BoardTaskComment]
+        comments: [TaskComment]
         detailedDesription: String
         createdAt: String!
         updatedAt: String!
     }
 
-    type BoardTaskComment {
+    type TaskComment {
         _id: ID!
-        createdBy: String!
+        createdBy: User!
+        commentLikes: Int!
         commentLikedBy:[User]!
         messageWord: MessageWord
     }
 
     type MessageWord {
-        _id: ID!
         message: String!
         usersMentioned: [User]!
     }

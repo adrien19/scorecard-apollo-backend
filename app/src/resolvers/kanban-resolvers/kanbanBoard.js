@@ -14,7 +14,8 @@ export default {
                         {
                             path: 'columns', 
                             populate: [
-                                { path: 'tasks' },
+                                { path: 'tasks' , populate: [{ path: 'comments'}]
+                            },
                         ]
                     }
                 );
@@ -191,6 +192,62 @@ export default {
                 };
             }
         ),
+
+        addTaskComment: combineResolvers(
+            isAuthenticated,
+            async (parent, { taskId, commentInputs }, { me, models }) => {
+
+                const errors = [];
+                if (validator.isEmpty(commentInputs.message) && (!commentInputs.usersMentioned || commentInputs.usersMentioned.length === 0)) {
+                    errors.push({ message: "addTaskComment -> Empty comment provided!" });
+                }
+
+                if (errors.length !== 0) {
+                    const error = new Error('Invalid comment inputs');
+                    error.data = errors;
+                    error.code = 422;
+                    throw error;
+                }
+
+                const boardTask = await models.BoardTask.findById({_id: new ObjectId(taskId)});
+                if (!boardTask) {
+                    const error = new Error("addTaskComment -> Task no longer exists!");
+                    error.code = 500;
+                    throw error;
+                }
+                
+                const createdTaskComment = new models.BoardTaskComment({
+                    createdBy: me.id,
+                    commentLikedBy: [],
+                    messageWord: commentInputs
+                });
+
+                const savedTaskComment = await createdTaskComment.save();
+                if (!savedTaskComment) {
+                    const error = new Error("addTaskComment -> Couldn't save the added comment!");
+                    error.code = 500;
+                    throw error;
+                }
+
+                boardTask.comments = [...boardTask.comments, savedTaskComment._id];
+                const savedboardTask = await boardTask.save();
+                
+                if (!savedboardTask) {
+                    const error = new Error("addTaskComment -> Couldn't save the edited task!");
+                    error.code = 500;
+                    throw error;
+                }
+
+                return { 
+                    ...savedTaskComment._doc, 
+                    _id: savedTaskComment._id.toString(),
+                    createdAt: savedTaskComment.createdAt.toISOString(),
+                    updatedAt: savedTaskComment.updatedAt.toISOString() 
+                };
+            }
+        )
+
+
     },
 
     KanbanBoard: {
