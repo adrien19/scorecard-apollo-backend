@@ -5,6 +5,7 @@ export default gql`
     extend type Query {
         kanbanBoard(id: ID!): KanbanBoard!
         boardTask(id: ID!): BoardTaskColumn!
+        taskComment(id: ID!): TaskComment!
     }
 
     extend type Mutation {

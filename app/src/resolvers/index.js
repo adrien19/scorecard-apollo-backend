@@ -1,6 +1,15 @@
 import userResolvers from './user';
 import scorecardResolvers from './scorecard';
 import kanbanBoardResolvers from './kanban-resolvers/kanbanBoard';
-import boardTask from './kanban-resolvers/boardTask';
+import boardTaskResolvers from './kanban-resolvers/boardTask';
+import taskCommentResolvers from './kanban-resolvers/boardTaskComment';
+import addBoardColumnResolvers from './kanban-resolvers/boardColumn';
 
-export default [userResolvers, scorecardResolvers, kanbanBoardResolvers, boardTask];
+export default [
+    userResolvers, 
+    scorecardResolvers, 
+    kanbanBoardResolvers, 
+    boardTaskResolvers, 
+    taskCommentResolvers, 
+    addBoardColumnResolvers
+];

@@ -28,7 +28,7 @@ export default {
     },
 
     Mutation: {
-        
+
         addBoardTask: combineResolvers(
             isAuthenticated,
             async (parent, { columnId, taskInputs }, { me, models }) => {
@@ -151,34 +151,38 @@ export default {
         },
 
         assignedTo: async (boardTask, args, { models, token }) => {
-            const userIds = boardTask.assignedTo.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
-                acc.push(curr);
-                return [...new Set(acc)];
-            }, []);
-
-            const usersData = await models.User.getUsersWithIDs({
-                userIds: userIds,
-                token: token
-            });
             
-            if (!usersData.length === 0) {
-                throw new UserInputError('No users were found with this id.'); 
-            }
+            return await boardTask.assigned? (async () => {
+                const userIds = boardTask.assignedTo.reduce( (acc, curr) => { // get all userIds and remove duplicates with 'new Set()'
+                    acc.push(curr);
+                    return [...new Set(acc)];
+                }, []);
 
-            const membersInfo = boardTask.assignedTo.reduce((acc, assigneeId) => {
-                usersData.filter(user => {
-                        return assigneeId === user.id;
-                    }).map(user => {
-                        acc.push({
-                            ...user,
-                            role: ""
+                const usersData = await models.User.getUsersWithIDs({
+                    userIds: userIds,
+                    token: token
+                });
+                
+                if (!usersData.length === 0) {
+                    throw new UserInputError('No users were found with this id.'); 
+                }
+
+                const membersInfo = boardTask.assignedTo.reduce((acc, assigneeId) => {
+                    usersData.filter(user => {
+                            return assigneeId === user.id;
+                        }).map(user => {
+                            acc.push({
+                                ...user,
+                                role: ""
+                            });
                         });
-                    });
 
-                return acc; 
-            }, []);
+                    return acc; 
+                }, []);
 
-            return membersInfo;
+                return membersInfo;
+
+            })(boardTask, models, token) : [];
         },
         
     }
