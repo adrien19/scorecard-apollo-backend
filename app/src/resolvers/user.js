@@ -66,9 +66,19 @@ export default {
           throw new UserInputError('No user found with this username.');
         }
 
+        const roles = userContent.userInfo.roles.map(role => {
+            return role.name.toUpperCase();
+        });
+
+        const loggedInUserInfo = {
+          ...userContent.userInfo,
+          roles: roles
+        }
+        
         return {
           accessToken: userContent.accessToken,
-          refreshToken: userContent.refreshToken
+          refreshToken: userContent.refreshToken,
+          loggedInUserInfo: loggedInUserInfo
         }
       },
 

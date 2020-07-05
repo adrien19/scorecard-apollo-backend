@@ -38,7 +38,18 @@ export default gql`
   type TokenInfo {
     accessToken: String!
     refreshToken: String!
+    loggedInUserInfo: UserInfo!
   }
+
+  type UserInfo {
+    id: ID!
+    username: String!
+    email: String!
+    firstname: String!
+    lastname: String!
+    roles: [String!]!
+  }
+
 
   type userDataSourceConfirm {
     confirmMessage: String!
