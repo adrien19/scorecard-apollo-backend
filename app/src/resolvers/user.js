@@ -95,7 +95,6 @@ export default {
           console.table(confirmation); // check returned value!
           const userDeletedMessage = confirmation.userDeleted? "User successfully deleted" : " Failed to delete user";
           
-
           return {
             confirmMessage: userDeletedMessage
           }
@@ -105,8 +104,8 @@ export default {
     },
    
     User: {
-      scorecards: (user, args, { models }) => {
-
+      fullname: (user, args, { models }) => {
+        return `${user.firstname} ${user.lastname}`;
       },
     },
   };

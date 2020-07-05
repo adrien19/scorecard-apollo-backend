@@ -50,6 +50,6 @@ export default gql`
     email: String!
     firstname: String!
     lastname: String!
-    scorecards: [Scorecard!]
+    fullname: String!
   }
 `;

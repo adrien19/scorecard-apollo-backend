@@ -100,6 +100,7 @@ export default {
                     }).map(user => {
                         acc.push({
                             ...user,
+                            fullname: `${user.firstname} ${user.lastname}`,
                             role: role.title
                         });
                     });

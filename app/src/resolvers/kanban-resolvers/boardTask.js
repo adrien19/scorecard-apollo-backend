@@ -133,7 +133,7 @@ export default {
     },
 
 
-    BoardTaskColumn: {
+    BoardTask: {
         createdBy: async (boardTask, args, { models, token }) => {
             const userContent = await models.User.getUserById({
                 id: boardTask.createdBy,
@@ -173,6 +173,7 @@ export default {
                         }).map(user => {
                             acc.push({
                                 ...user,
+                                fullname: `${user.firstname} ${user.lastname}`,
                                 role: ""
                             });
                         });
