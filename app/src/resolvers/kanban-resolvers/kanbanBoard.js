@@ -34,6 +34,29 @@ export default {
                 }
             }
         ),
+
+        // boadColumn: combineResolvers(
+        //     isAuthenticated,
+        //     async(parent, { id }, { models, token }) => {
+        //         const boardColumn = await models.BoardColumn.findById({_id: new ObjectId(id)})
+        //             .populate({ path: 'tasks' , populate: [{ path: 'comments'}]
+        //         });
+
+        //         if (!boardColumn) {
+        //             const error = new Error('boadColumn not found!');
+        //             error.code = 401;
+        //             throw error;
+        //         }
+
+        //         return {
+        //             ...boardColumn._doc,
+        //             _id: boardColumn._id.toString(),
+        //             createdAt: boardColumn.createdAt.toISOString(),
+        //             updatedAt: boardColumn.updatedAt.toISOString()
+        //         }
+                
+        //     }
+        // ),
     },
 
     Mutation: {
@@ -106,6 +129,7 @@ export default {
 
                 const createdBoardColumn = new models.BoardColumn({
                     name: columnInputs.name.toUpperCase(),
+                    createdBy: me.id,
                     tasks: [],
                     kanbanBoard: kanbanBoard._id,
                 });
@@ -132,63 +156,6 @@ export default {
                     _id: savedBoardColumn._id.toString(),
                     createdAt: savedBoardColumn.createdAt.toISOString(),
                     updatedAt: savedBoardColumn.updatedAt.toISOString() 
-                };
-            }
-        ),
-
-        addBoardTask: combineResolvers(
-            isAuthenticated,
-            async (parent, { columnId, taskInputs }, { me, models }) => {
-
-                const errors = [];
-                if (validator.isEmpty(taskInputs.description)) {
-                    errors.push({ message: "Task's description can't be empty!" });
-                }
-
-                if (errors.length !== 0) {
-                    const error = new Error('Invalid board inputs');
-                    error.data = errors;
-                    error.code = 422;
-                    throw error;
-                }
-
-                const boardColumn = await models.BoardColumn.findById({_id: new ObjectId(columnId)});
-
-                const newDescription = boardColumn.tasks.some(task => task.description === taskInputs.description)? `${taskInputs.description} - COPY` : taskInputs.description;
-
-
-                const createdBoardTask = new models.BoardTask({
-                    description: newDescription,
-                    taskStatus: taskInputs.taskStatus,
-                    assigned: false,
-                    assignedTo: [],
-                    assignedBy: me.id,
-                    boardColumn: boardColumn._id,
-                    comments: [],
-                });
-
-
-                const savedBoardTask = await createdBoardTask.save();
-                if (!savedBoardTask) {
-                    const error = new Error("addBoardTask -> Couldn't save the added task!");
-                    error.code = 500;
-                    throw error;
-                }
-
-                boardColumn.tasks = [...boardColumn.tasks, savedBoardTask._id];
-                const savedBoardColumn = await boardColumn.save();
-                
-                if (!savedBoardColumn) {
-                    const error = new Error("addBoardTask -> Couldn't save the edited column!");
-                    error.code = 500;
-                    throw error;
-                }
-
-                return { 
-                    ...savedBoardTask._doc, 
-                    _id: savedBoardTask._id.toString(),
-                    createdAt: savedBoardTask.createdAt.toISOString(),
-                    updatedAt: savedBoardTask.updatedAt.toISOString() 
                 };
             }
         ),
@@ -284,4 +251,22 @@ export default {
             return membersInfo;
         },
     },
+
+    // BoardTaskComment: {
+    //     createdBy: async (comment, args, { models, token }) => {
+    //         const userContent = await models.User.getUserById({
+    //             id: comment.createdBy,
+    //             token: token
+    //         });
+
+    //         if (!userContent.user) {
+    //             throw new UserInputError('No user found with this id.'); 
+    //         }
+            
+    //         return {
+    //             ...userContent.user,
+    //             scorecards: []
+    //         }
+    //     },
+    // },
 }

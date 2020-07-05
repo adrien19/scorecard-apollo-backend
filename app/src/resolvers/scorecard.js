@@ -30,7 +30,17 @@ export default {
             isAuthenticated,
             async (parent, { id }, { models }) => {
                 const scorecard = await models.Scorecard.findById({_id: new ObjectId(id)})
-                    .populate('kanbanBoard');
+                    .populate( 
+                        {
+                            path: 'kanbanBoard', 
+                            populate: [
+                                { path: 'columns' , populate: [
+                                    { path: 'tasks'}
+                                ]
+                            },
+                        ]
+                    }
+                );
 
                 if (!scorecard) {
                     const error = new Error('Scorecard not found!');

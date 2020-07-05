@@ -4,11 +4,15 @@ export default gql`
 
     extend type Query {
         kanbanBoard(id: ID!): KanbanBoard!
+        boardTask(id: ID!): BoardTaskColumn!
     }
 
     extend type Mutation {
         updateKanbanBoard(id: ID!, boardInputs: BoardInputs): KanbanBoard!
+
         addBoardTask(columnId: ID!, taskInputs: TaskInputs): BoardTaskColumn!
+        assignUserToTask(userId: ID!, taskId: ID!): BoardTaskColumn!
+
         addBoardColumn(boardId: ID!, columnInputs: ColumnInputs): BoardColumn!
         addTaskComment(taskId: ID!, commentInputs: CommentInputs): TaskComment!
 
@@ -68,15 +72,17 @@ export default gql`
     type BoardColumn {
         _id: ID!
         name: String!
+        createdBy: User!
         tasks: [BoardTaskColumn]!
     }
 
     type BoardTaskColumn {
         _id: ID!
-        description: String!,
+        description: String!
         taskStatus: String!
+        createdBy: User!
         assigned: Boolean!
-        assignedTo: [User]
+        assignedTo: [MemberInfo]
         assignBy: User
         statusChangedTime: String
         comments: [TaskComment]

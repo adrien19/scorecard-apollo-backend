@@ -10,6 +10,10 @@ const BoardTaskSchema = new Schema ({
         type: String,
         required: true,
     },
+    createdBy: {
+        type: Number,
+        required: true
+    },
     assigned: {
         type: Boolean,
         default: false

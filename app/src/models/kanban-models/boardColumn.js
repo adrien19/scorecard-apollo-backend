@@ -3,6 +3,10 @@ import { Schema, SchemaTypes, model } from 'mongoose';
 
 const BoardColumnSchema = new Schema ({
     name: { type: String, required: true },
+    createdBy: {
+        type: Number,
+        required: true
+    },
     tasks: [{ 
         type: SchemaTypes.ObjectId, ref: 'BoardTask', required: true 
     }],
