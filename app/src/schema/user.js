@@ -26,6 +26,12 @@ export default gql`
   }
 
   extend type Mutation {
+    logout(
+      refreshToken: String!
+    ): userDataSourceConfirm!
+  }
+
+  extend type Mutation {
     refreshToken(
       refreshToken: String!
     ): String!

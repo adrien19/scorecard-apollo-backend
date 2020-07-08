@@ -35,6 +35,20 @@ export async function signIn(userInputs) {
     }
 }
 
+export async function logout(userInputs) {
+   
+    const response = await fetch(`${baseUserSourceUrl}/auth/logout`, {
+        method: 'post',
+        body: JSON.stringify(userInputs),
+        headers: {'Content-Type': 'application/json'}
+    });
+
+    const responseChecked = checkStatus(response);
+    const confirmationStatus = responseChecked? { userLoggedOut: true } : { userLoggedOut: false };
+
+    return confirmationStatus;
+}
+
 export async function getRefreshedToken(userInputs) {
 
     const response = await fetch(`${baseUserSourceUrl}/auth/refreshtoken`, {

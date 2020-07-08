@@ -82,6 +82,18 @@ export default {
         }
       },
 
+      logout: async (parent, { refreshToken }, { models }) => {
+        const confirmation = await models.User.logout({
+          token: refreshToken
+        });
+
+        const userCreatedMessage = confirmation.userLoggedOut? "User successfully created" : " Failed to create user";
+        
+        return {
+          confirmMessage: userCreatedMessage
+        }
+      },
+
       refreshToken: async (parent, { refreshToken }, { models }) => {
 
         const newToken = await models.User.getRefreshedToken({

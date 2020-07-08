@@ -54,7 +54,7 @@ export default gql`
     status: [Status]!
     projectStatus: String!
     createdBy: User!
-    kanbanBoard: KanbanBoard!
+    kanbanBoard: KanbanBoard
     publication: Publication!
     createdAt: String!
     updatedAt: String!
