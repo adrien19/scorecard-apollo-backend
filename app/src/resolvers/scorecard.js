@@ -57,6 +57,44 @@ export default {
             }
         ),
 
+        scorecardsCreatedBy: combineResolvers(
+            isAuthenticated,
+            async (parent, { userId }, { models }) => {
+                
+                const scorecards = await models.Scorecard.find({createdBy: userId})
+                    .populate('kanbanBoard')
+                    .sort({ createdAt: -1 });
+
+                return scorecards.map(card => {
+                    return {
+                        ...card._doc,
+                        _id: card._id.toString(),
+                        createdAt: card.createdAt.toISOString(),
+                        updatedAt: card.updatedAt.toISOString(),
+                    };
+                });
+            }
+        ),
+
+        scorecardsPublished: combineResolvers(
+            isAuthenticated,
+            async (parent, { publication }, { models }) => {
+                
+                const scorecards = await models.Scorecard.find({'publication.status': publication})
+                    .populate('kanbanBoard')
+                    .sort({ createdAt: -1 });
+
+                return scorecards.map(card => {
+                    return {
+                        ...card._doc,
+                        _id: card._id.toString(),
+                        createdAt: card.createdAt.toISOString(),
+                        updatedAt: card.updatedAt.toISOString(),
+                    };
+                });
+            }
+        ),
+
     },
 
     Mutation: {
@@ -158,7 +196,7 @@ export default {
                 pubsub.publish(EVENTS.SCORECARD.UPDATED, { // PUSH EVENT TO SUBSCRIBED
                     scorecardUpdated: { updatedScorecard },
                 });
-
+                
                 return { 
                     ...updatedScorecard._doc, 
                     _id: updatedScorecard._id.toString(),
@@ -206,7 +244,7 @@ export default {
             });
 
             if (!userContent.user) {
-                throw new UserInputError('No user found with this id.'); 
+                throw new UserInputError('createdBy -> No user found with this id.'); 
             }
             
             return {

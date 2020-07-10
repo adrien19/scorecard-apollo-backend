@@ -4,6 +4,8 @@ export default gql`
   extend type Query {
     scorecards: [Scorecard!]!
     scorecard(id: ID!): Scorecard!
+    scorecardsCreatedBy(userId: ID!): [Scorecard!]
+    scorecardsPublished(publication: Boolean!): [Scorecard!]!
   }
  
   extend type Mutation {

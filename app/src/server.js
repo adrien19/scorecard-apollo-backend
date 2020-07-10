@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import { ApolloServer, AuthenticationError } from 'apollo-server-express';
+import { ApolloServer } from 'apollo-server-express';
 import jwt from 'jsonwebtoken';
 import http from 'http';
 import mongoose from 'mongoose';
@@ -13,21 +13,17 @@ const app = express();
  
 app.use(cors());
 
-const getMe = async req => {
+const getMe = async (req) => {
   let token = req.headers['authorization'];
-  
   if (token) {
     token = token.split(' ')[1];
     try {
-      return await jwt.verify(token, process.env.SECRET);
+      return jwt.verify(token, process.env.SECRET);
     } catch (err) {
-      
-      if (!req.headers['refresh']) {
-        throw new AuthenticationError('Your session expired. Please Sign in again.');
-      }
       return null;
     }
   }
+  return null;
 }
  
 const server = new ApolloServer({
@@ -47,7 +43,6 @@ const server = new ApolloServer({
         models,
         token,
         me,
-        // secret: process.env.SECRET
       }
     }
   },

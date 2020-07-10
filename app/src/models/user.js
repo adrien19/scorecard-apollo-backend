@@ -59,7 +59,7 @@ export async function getRefreshedToken(userInputs) {
 
     const responseChecked = checkStatus(response);
     const jsonResponse = await responseChecked.json();
-
+    
     return jsonResponse
 }
 
@@ -80,8 +80,7 @@ export async function getUserById(authorization) {
     return {...jsonResponse}
 }
 
-export async function getCurrentUser(authorization) {
-
+export async function getCurrentUser(authorization) {    
     const response = await fetch(`${baseUserSourceUrl}/content/user`, {
         method: 'post',
         headers: {

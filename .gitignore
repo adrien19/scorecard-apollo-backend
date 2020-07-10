@@ -1,6 +1,9 @@
 
 *.config.*
 *.yml
+*.vscode
+*Dockerfile
+*.dockerignore
 
 ####### BELOW NON USER CREATED SPECIFIC ##########
 # Logs
