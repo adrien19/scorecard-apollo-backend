@@ -1,4 +1,4 @@
-import cors from 'cors';
+import {cors} from 'cors';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import jwt from 'jsonwebtoken';
@@ -11,7 +11,7 @@ import models from './models';
 
 const app = express();
  
-app.use(cors());
+// app.use(cors());
 
 const getMe = async (req) => {
   let token = req.headers['authorization'];

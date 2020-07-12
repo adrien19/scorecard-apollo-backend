@@ -1,10 +1,12 @@
 {
   "name": "scorecard-apollo-backend",
   "version": "1.0.0",
+  "private": true,
   "description": "A backend for scorecard application using Apollo GraphQL",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node app/src/server.js --require dotenv/config",
+    "start": "node babel-node app/src/server.js --require dotenv/config",
+    "dev": "nodemon --exec babel-node app/src/server.js --require dotenv/config",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -14,6 +16,10 @@
   ],
   "author": "Adrien Ndikumana",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/adrien19/scorecard-apollo-backend.git"
+  },
   "dependencies": {
     "apollo-server": "^2.15.0",
     "apollo-server-express": "^2.15.0",
@@ -26,6 +32,7 @@
     "mongodb": "^3.5.9",
     "mongoose": "^5.9.20",
     "node-fetch": "^2.6.0",
+    "redis": "^3.0.2",
     "validator": "^13.1.1"
   },
   "devDependencies": {

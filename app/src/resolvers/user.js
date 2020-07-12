@@ -87,7 +87,7 @@ export default {
           token: refreshToken
         });
 
-        const userCreatedMessage = confirmation.userLoggedOut? "User successfully created" : " Failed to create user";
+        const userCreatedMessage = confirmation.userLoggedOut? "User successfully logged out" : " Failed to logout user";
         
         return {
           confirmMessage: userCreatedMessage
